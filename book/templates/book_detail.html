@@ -64,7 +64,9 @@
                     </table>
                 </div>
                 <div class="mt-10">
+                    {% if reviews.all.count != 0 %}
                     <h2 class="text-2xl">Ratings and Reviews</h2>
+                    {% endif %}
                     <div class="mt-10">
                         {% include 'reviews.html' with reviews=reviews %}
                     </div>
