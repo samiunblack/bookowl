@@ -25,9 +25,9 @@ urlpatterns = [
     path('', views.HomeView.as_view(), name="home"),
     path('<str:genre>/', views.home, name="filter"),
     path('accounts/', include("accounts.urls")),
-    path("", include("review.urls")),
-    path("", include("book.urls")),
-    path("", include("transaction.urls")),
+    path("reviews/", include("review.urls")),
+    path("books/", include("book.urls")),
+    path("transaction/", include("transaction.urls")),
 ]
 
 

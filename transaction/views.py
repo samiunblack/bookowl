@@ -4,8 +4,19 @@ from .forms import DepositForm
 from django.urls import reverse_lazy
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
-# Create your views here.
+def send_deposit_email(user, amount, subject, template):
+        message = render_to_string(template, {
+            'user' : user,
+            'amount' : amount,
+        })
+        send_email = EmailMultiAlternatives(subject, '', to=[user.email])
+        send_email.attach_alternative(message, "text/html")
+        send_email.send()
+
+
 class DepositView(CreateView, LoginRequiredMixin):
     template_name = 'deposit.html'
     model = Transaction
@@ -29,6 +40,7 @@ class DepositView(CreateView, LoginRequiredMixin):
                 'balance'
             ]
         )
+        send_deposit_email(self.request.user, amount, "Successfully Deposit on Book Owl", "deposit_email.html")
         return super().form_valid(form)
     
     

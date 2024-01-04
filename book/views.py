@@ -6,8 +6,20 @@ from transaction.constants import BORROW, RETURN
 from review.forms import ReviewForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
-# Create your views here.
+
+def send_borrow_email(user, amount, subject, template):
+        message = render_to_string(template, {
+            'user' : user,
+            'amount' : amount,
+        })
+        send_email = EmailMultiAlternatives(subject, '', to=[user.email])
+        send_email.attach_alternative(message, "text/html")
+        send_email.send()
+        
+
 class BookDetailView(DetailView):
     model = Book
     template_name = 'book_detail.html'
@@ -75,6 +87,8 @@ def BorrowBook(request, pk):
         ]
     )
     
+    
+    send_borrow_email(request.user, book.price, f"Successfully Borrowed {book.title} on Book Owl", "book_borrow.html")
     return redirect("borrowed_books")
     
 
@@ -92,5 +106,7 @@ def ReturnBook(request, pk):
             'balance'
         ]
     )
+    
+    send_borrow_email(request.user, book.price, f"Successfully Returned {book.title} on Book Owl", "return_book.html")
     
     return redirect("borrowed_books")

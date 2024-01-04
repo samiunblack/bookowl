@@ -12,7 +12,7 @@ def review(request, pk):
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
-            review.user = request.user.account
+            review.user = request.user
             review.book = book
             form.save()
         return redirect("home")
