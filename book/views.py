@@ -77,19 +77,23 @@ def BorrowBook(request, pk):
     book = get_object_or_404(Book, pk=pk)
     request.user.account.borrowed_books.add(book)
     
-    Transaction.objects.create(user=request.user.account, amount=book.price, balance_after_transaction=request.user.account.balance - book.price, transaction_type=BORROW)
+    if(book.price > request.user.account.balance):
+       return redirect("deposit_money")
+    else:
+        Transaction.objects.create(user=request.user.account, amount=book.price, balance_after_transaction=request.user.account.balance - book.price, transaction_type=BORROW)
+        
+        account = request.user.account
+        account.balance -= book.price 
+        account.save(
+            update_fields=[
+                'balance'
+            ]
+        )
+        
+        
+        send_borrow_email(request.user, book.price, f"Successfully Borrowed {book.title} on Book Owl", "book_borrow.html")
+        return redirect("borrowed_books")
     
-    account = request.user.account
-    account.balance -= book.price 
-    account.save(
-        update_fields=[
-            'balance'
-        ]
-    )
-    
-    
-    send_borrow_email(request.user, book.price, f"Successfully Borrowed {book.title} on Book Owl", "book_borrow.html")
-    return redirect("borrowed_books")
     
 
 @login_required
